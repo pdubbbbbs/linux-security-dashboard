@@ -30,7 +30,7 @@ A comprehensive real-time security monitoring and visualization system for Linux
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/username/linux-security-dashboard.git
+   git clone https://github.com/pdubbbbbs/linux-security-dashboard.git
    cd linux-security-dashboard
    ```
 
