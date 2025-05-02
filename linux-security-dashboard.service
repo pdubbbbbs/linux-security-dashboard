@@ -1,0 +1,15 @@
+[Unit]
+Description=Linux Security Dashboard
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+User=booboo
+WorkingDirectory=/home/booboo/linux-security-dashboard
+ExecStart=/usr/bin/python3 /home/booboo/linux-security-dashboard/security_dashboard.py --update-only
+
+[Install]
+WantedBy=multi-user.target
+

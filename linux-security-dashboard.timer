@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Linux Security Dashboard every 15 minutes
+After=network.target
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+
