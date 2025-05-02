@@ -312,89 +312,300 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <!-- Chart.js 3D plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- ChartJS 3D effects -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js-plugin-3d@2.1.0/dist/chart.js-plugin-3d.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {{
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #7209b7;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --info-color: #4895ef;
+            --dark-color: #1e293b;
+            --light-color: #f8f9fa;
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            --text-primary: #334155;
+            --text-secondary: #64748b;
+        }}
+        
+        * {{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }}
+        
         body {{
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-size: 16px;
         }}
+        
         .container {{
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            overflow-x: hidden;
         }}
+        
+        .dashboard-header {{
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }}
+        
+        .header-content {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        
+        .live-timestamp {{
+            text-align: right;
+            font-family: 'Poppins', sans-serif;
+            min-width: 180px;
+        }}
+        
+        .live-timestamp .time {{
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            letter-spacing: 1px;
+        }}
+        
+        .live-timestamp .date {{
+            font-size: 1rem;
+            opacity: 0.9;
+        }}
+        
         h1 {{
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            letter-spacing: -0.5px;
         }}
+        
         h2 {{
-            color: #3498db;
-            margin-top: 30px;
+            color: var(--primary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.8rem;
+            position: relative;
+            padding-left: 1rem;
         }}
+        
+        h2:before {{
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+        }}
+        
+        h3 {{
+            color: var(--dark-color);
+            margin: 1rem 0;
+            font-weight: 500;
+            font-size: 1.2rem;
+        }}
+        
         pre {{
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
+            background-color: var(--dark-color);
+            color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
             overflow-x: auto;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             white-space: pre-wrap;
+            font-size: 0.9rem;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+         }}
+        
+        .grid-container {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }}
+        
         .card {{
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
+            margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            border: none;
         }}
+        
+        .card:hover {{
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }}
+        
         .card-header {{
-            background-color: #f8f9fa;
-            padding: 10px;
-            margin: -15px -15px 15px -15px;
-            border-bottom: 1px solid #ddd;
-            border-radius: 5px 5px 0 0;
-            font-weight: bold;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }}
+        
         .timestamp {{
             text-align: right;
             font-style: italic;
-            color: #7f8c8d;
-            margin-top: 20px;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
         }}
-        .status-ok {{
-            color: green;
-        }}
-        .status-warning {{
-            color: orange;
-        }}
+        
         .status-error {{
-            color: red;
+            color: #ef4444;
+            font-weight: 600;
         }}
+        
         table {{
             width: 100%;
             border-collapse: collapse;
+            margin: 1rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }}
+        
         table, th, td {{
-            border: 1px solid #ddd;
+            border: none;
         }}
+        
         th, td {{
-            padding: 8px;
+            padding: 1rem;
             text-align: left;
         }}
+        
         th {{
-            background-color: #f2f2f2;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--info-color) 100%);
+            color: white;
+            font-weight: 500;
+        }}
+        
+        tr:nth-child(even) {{
+            background-color: rgba(0, 0, 0, 0.02);
+        }}
+        
+        .chart-container {{
+            position: relative;
+            height: 300px;
+            width: 100%;
+            padding: 1rem;
+        }}
+        
+        .flex-wrap {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }}
+        
+        .flex-item {{
+            flex: 1 1 300px;
+            min-width: 0;
+        }}
+        
+        .badge {{
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+        
+        .badge-primary {{
+            background-color: var(--primary-color);
+            color: white;
+        }}
+        
+        .badge-warning {{
+            background-color: var(--warning-color);
+            color: white;
+        }}
+        
+        .badge-info {{
+            background-color: var(--info-color);
+            color: white;
+        }}
+        
+        @media (max-width: 768px) {{
+            .container {{
+                padding: 1rem;
+            }}
+            
+            h1 {{
+                font-size: 1.8rem;
+            }}
+            
+            h2 {{
+                font-size: 1.5rem;
+            }}
+            
+            .card {{
+                padding: 1rem;
+            }}
+            
+            .card-header {{
+                padding: 0.75rem 1rem;
+                margin: -1rem -1rem 1rem -1rem;
+            }}
+            
+            .header-content {{
+                flex-direction: column;
+                align-items: flex-start;
+            }}
+            
+            .live-timestamp {{
+                margin-top: 1rem;
+                text-align: left;
+            }}
         }}
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Security Dashboard - {hostname}</h1>
-        <p>Logged in as: <strong>{username}</strong></p>
+        <div class="dashboard-header">
+            <div class="header-content">
+                <div>
+                    <h1>Security Dashboard - {hostname}</h1>
+                    <p>Logged in as: <strong>{username}</strong></p>
+                </div>
+                <div class="live-timestamp">
+                    <div class="time" id="currentTime">00:00:00</div>
+                    <div class="date" id="currentDate">Loading...</div>
+                </div>
+            </div>
+        </div>
         
         <div class="card">
             <div class="card-header">System Status</div>
@@ -438,8 +649,8 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
         </div>
         
         <div class="timestamp">
-            Report generated at: {timestamp}
-            {"<br><small>(Page will refresh every " + str(refresh_interval) + " seconds)</small>" if auto_refresh else ""}
+            Dashboard data updated at: {timestamp}
+            {"<br><small>(Data refreshes every " + str(refresh_interval) + " seconds)</small>" if auto_refresh else ""}
         </div>
         
         <!-- Charts Section -->
@@ -520,6 +731,25 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
     <script>
         // Chart.js Configuration for 3D effect
         Chart.register(ChartDataLabels);
+
+        // Live Clock Functionality
+        function updateClock() {
+            const now = new Date();
+            
+            // Update time with seconds
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            
+            // Update date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        // Update clock immediately and then every second
+        updateClock();
+        setInterval(updateClock, 1000);
         
         // Color palette
         const colors = [
@@ -545,7 +775,7 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
         }
         
         // Historical Data
-        const historyData = {historyJson};
+        const historyData = {json.dumps(history)};
         
         // CPU Chart
         const cpuCtx = document.getElementById('cpuChart').getContext('2d');
@@ -790,10 +1020,53 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
         });
         
         // Disk Usage Charts - 3D Pie Charts
-        {disk_charts_js}
+        // Generate disk charts JavaScript
+        const diskData = {json.dumps(metrics["disk"])};
+        
+        // Create a disk chart for each disk
+        for (let i = 0; i < diskData.length; i++) {
+            const disk = diskData[i];
+            const diskCtx = document.getElementById(`diskChart${i}`).getContext('2d');
+            
+            const diskChart = new Chart(diskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Used', 'Free'],
+                    datasets: [{
+                        data: [disk.used, disk.free],
+                        backgroundColor: [colors[1], colors[2]],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: `Disk Usage: ${disk.mountpoint}`
+                        },
+                        datalabels: {
+                            formatter: (value, ctx) => {
+                                let sum = disk.total;
+                                let percentage = (value*100 / sum).toFixed(1)+"%";
+                                return percentage;
+                            },
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            });
+        }
         
         // Authentication Events Pie Chart
-        const authEventsData = {auth_data_json};
+        const authEventsData = {json.dumps(auth_data)};
         const authEventsCtx = document.getElementById('authEventsChart').getContext('2d');
         
         const authEventsChart = new Chart(authEventsCtx, {
@@ -890,7 +1163,7 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
         });
         
         // Firewall Rules Chart
-        const firewallData = {firewall_data_json};
+        const firewallData = {json.dumps(firewall_stats)};
         
         // Blocked Ports
         const portsCtx = document.getElementById('portsChart').getContext('2d');
@@ -972,6 +1245,11 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
                                 });
                                 let percentage = (value * 100 / sum).toFixed(1) + '%';
                                 return percentage;
+                            },
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 12
                             }
                         }
                     }
