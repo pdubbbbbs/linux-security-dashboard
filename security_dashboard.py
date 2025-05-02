@@ -270,6 +270,7 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
         auto_refresh (bool): Whether to automatically refresh the page
         refresh_interval (int): Refresh interval in seconds
     """
+    print("Starting to generate HTML report...")
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     hostname = socket.gethostname()
     username = pwd.getpwuid(os.getuid()).pw_name
@@ -471,14 +472,18 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
         <div class="card">
             <div class="card-header">Disk Usage</div>
             <div style="display: flex; flex-wrap: wrap;">
-                {
-                    ''.join([f"""
+                """
+
+    # Add disk chart sections 
+    for i, disk in enumerate(metrics['disk']):
+        html_content += f"""
                     <div style="width: 50%; min-width: 300px;">
                         <h3>{disk['mountpoint']}</h3>
                         <canvas id="diskChart{i}" width="400" height="400"></canvas>
                     </div>
-                    """ for i, disk in enumerate(metrics['disk'])])
-                }
+                """
+
+    html_content += """
             </div>
         </div>
         
@@ -973,6 +978,14 @@ def generate_html_report(auto_refresh=True, refresh_interval=300):
                 }
             });
         """
+    
+    # Write the HTML content to a file
+    print(f"Writing HTML report to {report_path}...")
+    with open(report_path, 'w') as f:
+        f.write(html_content)
+    
+    print(f"Report generated successfully at {report_path}")
+    return report_path
 
 def main():
     # Parse command line arguments
@@ -990,6 +1003,7 @@ def main():
     if not args.update_only:
         webbrowser.open(f"file://{report_path}")
     
+    print(f"Dashboard updated successfully. Path: {report_path}")
     return report_path
 
 if __name__ == "__main__":
